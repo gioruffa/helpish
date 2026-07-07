@@ -1,0 +1,20 @@
+[project]
+name = "helpish"
+version = "0.1.0"
+description = "List English words by length — handy for writing Pilish."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "textual>=8.2.8",
+    "wordfreq>=3.1.1",
+]
+
+[project.scripts]
+helpish = "helpish:main"
+
+[build-system]
+requires = ["uv_build>=0.8.0,<0.9.0"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-name = "helpish"
