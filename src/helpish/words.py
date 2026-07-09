@@ -1,20 +1,20 @@
-"""Load and bucket the bundled English word list."""
+"""Bucket the wordfreq English vocabulary by length."""
 
 from __future__ import annotations
 
 from collections import defaultdict
-from importlib.resources import files
-from pathlib import Path
 
-WORDS_FILE = Path(str(files("helpish") / "words_alpha.txt"))
+from wordfreq import iter_wordlist
 
 
-def load_words_by_length(path: Path) -> dict[int, list[str]]:
-    """Read the word list once and bucket every word by its length."""
+def load_words_by_length(language: str = "en") -> dict[int, list[str]]:
+    """Bucket every alphabetic word from wordfreq by its length.
+
+    Words arrive in descending-frequency order, so each bucket is
+    already sorted most-frequent-first.
+    """
     buckets: dict[int, list[str]] = defaultdict(list)
-    with path.open(encoding="utf-8") as handle:
-        for line in handle:
-            word = line.strip()
-            if word:
-                buckets[len(word)].append(word)
+    for word in iter_wordlist(language):
+        if word.isalpha():
+            buckets[len(word)].append(word)
     return buckets

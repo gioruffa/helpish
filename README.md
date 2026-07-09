@@ -30,4 +30,4 @@ uv run helpish
 - Results are sorted by frequency (most common first).
 - Press `Ctrl+C` to quit.
 
-Words come from `words_alpha.txt`, a comprehensive list that includes inflected forms (plurals, conjugations, comparatives), not just dictionary head-words.
+Words come from the [`wordfreq`](https://github.com/rspeer/wordfreq) English word list, ordered by real-world usage frequency.

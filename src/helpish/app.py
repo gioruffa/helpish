@@ -6,9 +6,8 @@ from textual import on
 from textual.app import App, ComposeResult
 from textual.containers import Horizontal, VerticalScroll
 from textual.widgets import Footer, Header, Input, Label, Static
-from wordfreq import zipf_frequency
 
-from helpish.words import WORDS_FILE, load_words_by_length
+from helpish.words import load_words_by_length
 
 
 class WordLengthApp(App[None]):
@@ -61,12 +60,7 @@ class WordLengthApp(App[None]):
         yield Footer()
 
     def on_mount(self) -> None:
-        if not WORDS_FILE.exists():
-            self.query_one("#summary", Static).update(
-                f"[red]Word list not found:[/] {WORDS_FILE}"
-            )
-            return
-        self.words_by_length = load_words_by_length(WORDS_FILE)
+        self.words_by_length = load_words_by_length()
         total = sum(len(w) for w in self.words_by_length.values())
         longest = max(self.words_by_length) if self.words_by_length else 0
         self.query_one("#summary", Static).update(
@@ -102,15 +96,12 @@ class WordLengthApp(App[None]):
             results.update("")
             return
 
-        ordered = sorted(
-            words, key=lambda word: zipf_frequency(word, "en"), reverse=True
-        )
         suffix = f" containing '{needle}'" if needle else ""
         summary.update(
-            f"[b]{len(ordered):,}[/] words of length {length}{suffix} "
+            f"[b]{len(words):,}[/] words of length {length}{suffix} "
             "(most frequent first):"
         )
-        results.update("  ".join(ordered))
+        results.update("  ".join(words))
 
 
 def main() -> None:
