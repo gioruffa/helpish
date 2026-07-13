@@ -82,6 +82,7 @@ def test_lexicon_from_wordfreq(simple_frequency_dict, simple_lexicon):
         the_mock.return_value = simple_frequency_dict
         sut = Lexicon.from_wordfreq()
         assert sut == simple_lexicon
+        the_mock.assert_called_once_with("en")
 
 
 def test_lexicon_eq(simple_lexicon, simple_frequency_dict):
