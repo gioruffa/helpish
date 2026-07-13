@@ -1,7 +1,7 @@
 from helpish.core.lexicon import Lexicon, Word
 from pytest import fixture, raises
 import random
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 
 @fixture

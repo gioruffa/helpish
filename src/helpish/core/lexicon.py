@@ -39,7 +39,7 @@ class Lexicon:
         """
         if language not in available_languages():
             raise ValueError(f"Language {language} not supported.")
-        
+
         buckets: dict[int, list[Word]] = defaultdict(list)
         for word, frequency in get_frequency_dict(language).items():
             if word.isalpha():
@@ -68,7 +68,7 @@ class Lexicon:
         if query:
             words = [word for word in words if query in word.word]
         return words
-    
+
     def __eq__(self, other):
         if isinstance(other, Lexicon):
             return self._words_by_length == other._words_by_length
