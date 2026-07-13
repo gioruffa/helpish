@@ -1,4 +1,4 @@
-.PHONY: lint fix test build publish
+.PHONY: lint fix test build publish clean mutate
 
 lint:
 	uv run ruff check .
