@@ -7,7 +7,7 @@ from textual.app import App, ComposeResult
 from textual.containers import Horizontal, VerticalScroll
 from textual.widgets import Footer, Header, Input, Label, Static
 
-from helpish.words import load_words_by_length
+from helpish.core.lexicon import Lexicon
 
 
 class WordLengthApp(App[None]):
@@ -38,7 +38,7 @@ class WordLengthApp(App[None]):
 
     def __init__(self) -> None:
         super().__init__()
-        self.words_by_length: dict[int, list[str]] = {}
+        self.lexicon: Lexicon | None = None
 
     def compose(self) -> ComposeResult:
         yield Header()
@@ -60,12 +60,11 @@ class WordLengthApp(App[None]):
         yield Footer()
 
     def on_mount(self) -> None:
-        self.words_by_length = load_words_by_length()
-        total = sum(len(w) for w in self.words_by_length.values())
-        longest = max(self.words_by_length) if self.words_by_length else 0
+        self.lexicon = Lexicon.from_wordfreq()
+        total = self.lexicon.total_words
+        longest = self.lexicon.longest_length
         self.query_one("#summary", Static).update(
-            f"Loaded {total:,} words (lengths 1–{longest}). "
-            "Enter a number above."
+            f"Loaded {total:,} words (lengths 1–{longest}). Enter a number above."
         )
         self.query_one("#length-input", Input).focus()
 
@@ -83,25 +82,24 @@ class WordLengthApp(App[None]):
             return
 
         length = int(value)
-        words = self.words_by_length.get(length, [])
-        if needle:
-            words = [word for word in words if needle in word]
+        words = self.lexicon.search(length, needle) if self.lexicon else []
         if not words:
             if needle:
-                summary.update(
-                    f"No words of length {length} containing '{needle}'."
-                )
+                summary.update(f"No words of length {length} containing '{needle}'.")
             else:
                 summary.update(f"No words of length {length}.")
             results.update("")
             return
+
+        # sort words by frequency
+        words = sorted(words, key=lambda word: word.frequency, reverse=True)
 
         suffix = f" containing '{needle}'" if needle else ""
         summary.update(
             f"[b]{len(words):,}[/] words of length {length}{suffix} "
             "(most frequent first):"
         )
-        results.update("  ".join(words))
+        results.update("  ".join([word.word for word in words]))
 
 
 def main() -> None:
