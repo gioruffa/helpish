@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from wordfreq import get_frequency_dict
+from wordfreq import get_frequency_dict, available_languages
 
 from dataclasses import dataclass
 
@@ -37,6 +37,9 @@ class Lexicon:
         Words arrive in descending-frequency order, so each bucket is already
         sorted most-frequent-first.
         """
+        if language not in available_languages():
+            raise ValueError(f"Language {language} not supported.")
+        
         buckets: dict[int, list[Word]] = defaultdict(list)
         for word, frequency in get_frequency_dict(language).items():
             if word.isalpha():
@@ -56,7 +59,7 @@ class Lexicon:
     def search(self, length: int, contains: str = "") -> list[Word]:
         """Return every Word of ``length`` containing ``contains``.
 
-        ``contains`` is matched case-insensitively; 
+        ``contains`` is matched case-insensitively;
         An empty string matches every word of that length.
         There are no guarantees on ordering.
         """
@@ -65,3 +68,8 @@ class Lexicon:
         if query:
             words = [word for word in words if query in word.word]
         return words
+    
+    def __eq__(self, other):
+        if isinstance(other, Lexicon):
+            return self._words_by_length == other._words_by_length
+        return False

@@ -1,14 +1,27 @@
 from helpish.core.lexicon import Lexicon, Word
-from pytest import fixture
+from pytest import fixture, raises
 import random
+from unittest.mock import patch, MagicMock
 
 
 @fixture
-def simple_words_by_length():
+def simple_frequency_dict():
+    return {"a": 0.1, "i": 0.3, "to": 0.1, "of": 0.2}
+
+
+@fixture
+def simple_words_by_length(simple_frequency_dict):
     return {
-        1: [Word("a", 0.1), Word("i", 0.3)],
-        2: [Word("to", 0.1), Word("of", 0.2)],
+        1: [
+            Word("a", simple_frequency_dict["a"]),
+            Word("i", simple_frequency_dict["i"]),
+        ],
+        2: [
+            Word("to", simple_frequency_dict["to"]),
+            Word("of", simple_frequency_dict["of"]),
+        ],
     }
+
 
 @fixture
 def simple_lexicon(simple_words_by_length):
@@ -57,3 +70,25 @@ def test_lexicon_total_words(simple_lexicon):
 
 def test_lexicon_longest_length(simple_lexicon):
     assert simple_lexicon.longest_length == 2
+
+
+def test_lexicon_longest_length_returns_0_when_empty():
+    sut = Lexicon({})
+    assert sut.longest_length == 0
+
+
+def test_lexicon_from_wordfreq(simple_frequency_dict, simple_lexicon):
+    with patch("helpish.core.lexicon.get_frequency_dict") as the_mock:
+        the_mock.return_value = simple_frequency_dict
+        sut = Lexicon.from_wordfreq()
+        assert sut == simple_lexicon
+
+
+def test_lexicon_eq(simple_lexicon, simple_frequency_dict):
+    assert simple_lexicon != simple_frequency_dict
+
+
+def test_lexicon_from_wordfreq_unsupported_language():
+    with raises(ValueError) as error:
+        Lexicon.from_wordfreq("vogon")
+    assert "Language vogon not supported." in error.value.args[0]
