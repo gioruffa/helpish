@@ -19,3 +19,6 @@ build:
 
 publish: build
 	uv publish --token $$PIPL_TOKEN
+
+clean:
+	rm -r dist
